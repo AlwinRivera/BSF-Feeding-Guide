@@ -40,8 +40,8 @@
         <tr>
           <th>DOL</th>
           <th>Feed Type</th>
-          <th>Feed (kg)</th>
-          <th>Water (L)</th>
+          <th>Feed</th>
+          <th>Water</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -63,9 +63,9 @@
       let feedType = "";
       let feedClass = "";
 
-      // Phase 1: Mash (Day 0–6) realistic starter feed
+      // Phase 1: Mash (Day 0–6)
       if(day <= 6){
-        const mashCurve = [0.2,0.4,0.6,0.8,1.0,1.2,1.4]; // g feed per g eggs per day
+        const mashCurve = [0.2,0.4,0.6,0.8,1.0,1.2,1.4];
         feedPerGram = mashCurve[day];
         totalMash += feedPerGram * eggGrams;
         feedType = "Chicken Mash";
@@ -73,14 +73,14 @@
       }
       // Phase 2: Transition (Day 7–8)
       else if(day === 7){
-        feedPerGram = 1.0; // 50% mash + 50% manure
+        feedPerGram = 1.0;
         totalMash += (feedPerGram * 0.5) * eggGrams;
         totalManure += (feedPerGram * 0.5) * eggGrams;
         feedType = "50% Mash + 50% Manure";
         feedClass = "transition";
       }
       else if(day === 8){
-        feedPerGram = 0.8; // 50% mash + 50% manure
+        feedPerGram = 0.8;
         totalMash += (feedPerGram * 0.5) * eggGrams;
         totalManure += (feedPerGram * 0.5) * eggGrams;
         feedType = "50% Mash + 50% Manure";
@@ -96,21 +96,26 @@
         feedClass = "manure";
       }
 
-      let feedAmountKg = (feedPerGram * eggGrams) / 1000;
-      let waterLiters = feedAmountKg * 1.2;
+      // Display in grams for small batches (<1kg eggs), else kg
+      let feedDisplay = eggGrams < 1000 ? (feedPerGram * eggGrams).toFixed(2) + ' g' : ((feedPerGram * eggGrams)/1000).toFixed(2) + ' kg';
+      let waterLiters = feedPerGram * eggGrams * 1.2;
+      let waterDisplay = eggGrams < 1000 ? waterLiters.toFixed(2) + ' ml' : (waterLiters/1000).toFixed(2) + ' L';
 
       tableRows.push(`<tr>
         <td>${day}</td>
         <td class="feed-type ${feedClass}">${feedType}</td>
-        <td>${feedAmountKg.toFixed(2)}</td>
-        <td class="water">${waterLiters.toFixed(2)}</td>
+        <td>${feedDisplay}</td>
+        <td class="water">${waterDisplay}</td>
       </tr>`);
     }
 
+    let totalMashDisplay = eggGrams < 1000 ? totalMash.toFixed(2) + ' g' : (totalMash/1000).toFixed(2) + ' kg';
+    let totalManureDisplay = eggGrams < 1000 ? totalManure.toFixed(2) + ' g' : (totalManure/1000).toFixed(2) + ' kg';
+
     return {
       rows: tableRows.join(''),
-      totalMash: totalMash / 1000,
-      totalManure: totalManure / 1000
+      totalMashDisplay,
+      totalManureDisplay
     };
   };
 
@@ -127,8 +132,8 @@
     $('#plan tbody').html(result.rows);
 
     $('#summary').html(`
-      <strong>Total Mash (Day 0–8):</strong> ${result.totalMash.toFixed(1)} kg<br>
-      <strong>Total Manure (Day 7–28):</strong> ${result.totalManure.toFixed(1)} kg<br><br>
+      <strong>Total Mash (Day 0–8):</strong> ${result.totalMashDisplay}<br>
+      <strong>Total Manure (Day 7–28):</strong> ${result.totalManureDisplay}<br><br>
       <strong>System:</strong> Mash → Transition → Full Manure (industrial realistic)
     `).show();
   });
