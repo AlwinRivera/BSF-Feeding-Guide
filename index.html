@@ -2,199 +2,613 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>BSF Feeding Guide</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
-
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    body { background: #f9f9f9; font-family: Arial, sans-serif; }
-    .container { margin-top: 40px; }
-    .result-table th, .result-table td { text-align: center; }
-    .feed-type { font-weight: bold; color: white; padding: 5px; border-radius: 5px; }
-    .mash { background-color: #28a745; }
-    .transition { background-color: #ffc107; color: black; }
-    .manure { background-color: #795548; }
-    .water { color: #007bff; font-weight: bold; }
-    .summary { background: #e9ecef; padding: 15px; border-radius: 5px; margin-top: 20px; }
+    :root {
+      --bg: #0f1a0f;
+      --surface: #172117;
+      --surface2: #1e2d1e;
+      --border: #2a3d2a;
+      --accent: #6fcf45;
+      --accent2: #b8e986;
+      --amber: #f5c542;
+      --brown: #a0714f;
+      --blue: #5bb8f5;
+      --red: #e05c5c;
+      --text: #d4e8c2;
+      --muted: #7a9c6a;
+      --mono: 'Space Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      padding: 0 0 60px 0;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 28px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo {
+      width: 44px; height: 44px;
+      background: var(--accent);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+
+    header h1 {
+      font-family: var(--mono);
+      font-size: 1.2rem;
+      color: var(--accent2);
+      letter-spacing: 0.04em;
+    }
+
+    header p {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 20px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+
+    .card-title {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 1rem;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="number"]:focus { border-color: var(--accent); }
+
+    .hint {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .toggles {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .toggle-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.85rem;
+      color: var(--muted);
+      user-select: none;
+    }
+
+    .toggle-btn.active {
+      border-color: var(--accent);
+      color: var(--accent2);
+      background: rgba(111,207,69,0.07);
+    }
+
+    .toggle-dot {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--border);
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .toggle-btn.active .toggle-dot { background: var(--accent); }
+
+    .btn {
+      width: 100%;
+      background: var(--accent);
+      color: #0f1a0f;
+      border: none;
+      border-radius: 8px;
+      padding: 13px;
+      font-family: var(--mono);
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .btn:hover { opacity: 0.9; }
+    .btn:active { transform: scale(0.99); }
+
+    /* Summary boxes */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .stat-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .stat-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-family: var(--mono);
+      font-size: 1.2rem;
+      color: var(--accent2);
+      font-weight: 700;
+    }
+
+    .stat-sub {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* Table */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+
+    thead tr {
+      background: var(--surface2);
+    }
+
+    th {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding: 12px 14px;
+      text-align: right;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th:first-child, th:nth-child(2), th:nth-child(3) { text-align: left; }
+
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(42,61,42,0.5);
+      text-align: right;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+    }
+
+    td:first-child, td:nth-child(2), td:nth-child(3) { text-align: left; }
+
+    tr:last-child td { border-bottom: none; }
+
+    tr:hover td { background: rgba(111,207,69,0.04); }
+
+    .phase-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .ph-mash    { background: rgba(91,184,245,0.15); color: var(--blue); }
+    .ph-trans   { background: rgba(245,197,66,0.15); color: var(--amber); }
+    .ph-manure  { background: rgba(160,113,79,0.2);  color: var(--brown); }
+    .ph-pre     { background: rgba(224,92,92,0.15);  color: var(--red); }
+
+    .dol-cell {
+      font-family: var(--mono);
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .water-val { color: var(--blue); }
+    .mol-val   { color: var(--amber); }
+
+    .section-title {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin: 28px 0 14px 0;
+    }
+
+    .legend {
+      display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 18px;
+    }
+
+    .legend-item {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 0.76rem; color: var(--muted);
+    }
+
+    .legend-dot {
+      width: 10px; height: 10px; border-radius: 3px;
+    }
+
+    #output { display: none; }
+
+    .info-note {
+      background: rgba(111,207,69,0.06);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 16px;
+      line-height: 1.6;
+    }
+
+    .info-note strong { color: var(--accent2); }
   </style>
 </head>
-
 <body>
-<div class="container">
-  <h2 class="text-center mb-4">BSF Feeding Guide</h2>
 
-  <div class="card p-4 mb-4">
-    <div class="form-group">
-      <label>Grams of BSF eggs:</label>
-      <input type="number" id="eggGrams" class="form-control" placeholder="e.g., 15000" min="1">
+<header>
+  <div class="logo">🪲</div>
+  <div>
+    <h1>BSF FEEDING GUIDE</h1>
+    <p>Black Soldier Fly larvae feed calculator · Hermetia illucens</p>
+  </div>
+</header>
+
+<div class="main">
+
+  <div class="card">
+    <div class="card-title">Input Parameters</div>
+    <div class="form-grid">
+      <div>
+        <label>Grams of BSF Eggs</label>
+        <input type="number" id="eggGrams" placeholder="e.g. 17" min="0.1" step="0.1" value="17">
+        <div class="hint">~500–600 eggs per gram · 85% hatch rate applied</div>
+      </div>
+      <div>
+        <label>Starting Day (DOL)</label>
+        <input type="number" id="currentDOL" placeholder="e.g. 0" min="0" max="28" value="0">
+        <div class="hint">Day Of Life — 0 = just hatched / egg stage</div>
+      </div>
     </div>
 
-    <div class="form-group">
-      <label>Current Larvae Age (DOL):</label>
-      <input type="number" id="currentDOL" class="form-control" placeholder="e.g., 0" min="0">
+    <div style="margin-top: 20px;">
+      <label>Substrate Options</label>
+      <div class="toggles" id="toggles">
+        <div class="toggle-btn active" data-id="useManure">
+          <div class="toggle-dot"></div> Use Chicken Manure
+        </div>
+        <div class="toggle-btn" data-id="useMolasses">
+          <div class="toggle-dot"></div> Molasses Spray (every 5 days)
+        </div>
+      </div>
     </div>
 
-    <!-- ✅ NEW TOGGLE -->
-    <div class="form-group form-check">
-      <input type="checkbox" class="form-check-input" id="useManure" checked>
-      <label class="form-check-label">
-        Use Chicken Manure (toggle OFF = mash only system)
-      </label>
-    </div>
-
-    <button id="generate" class="btn btn-primary btn-block">
-      Generate Feeding Plan
-    </button>
+    <button class="btn" id="generate">▶ Generate Feeding Plan</button>
   </div>
 
-  <div id="plan" class="mt-4">
-    <h4>Daily Feeding Schedule</h4>
-    <table class="table table-bordered result-table">
-      <thead class="thead-dark">
-        <tr>
-          <th>DOL</th>
-          <th>Feed Type</th>
-          <th>Feed</th>
-          <th>Water</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+  <div id="output">
+    <p class="section-title">Larva Population</p>
+    <div class="summary-grid" id="summaryBoxes"></div>
+
+    <p class="section-title">Daily Feeding Schedule</p>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#5bb8f5;"></div> Mash Phase</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f5c542;"></div> Transition</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#a0714f;"></div> Manure Phase</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#e05c5c;"></div> Pre-pupation</div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>DOL</th>
+            <th>Phase</th>
+            <th>Feed Type</th>
+            <th>Feed Amount</th>
+            <th>Water</th>
+            <th>Molasses</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="card" style="margin-top:24px;" id="totalsCard">
+      <div class="card-title">Totals Summary</div>
+      <div id="totalsContent"></div>
+      <div class="info-note" id="scienceNote"></div>
+    </div>
   </div>
 
-  <div id="summary" class="summary" style="display:none;"></div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 <script>
-const feedGuide = (eggGrams, currentDOL, useManure) => {
-  const tableRows = [];
-  let totalMash = 0;
-  let totalManure = 0;
+// ─────────────────────────────────────────────
+//  SCIENCE BASIS
+//  - 550 eggs/gram (midpoint of 500–600)
+//  - 85% hatch rate
+//  - Feed rate per larva per day (mg/larva/day)
+//    follows observed bell curve:
+//    peak ~150–200 mg/larva/day at DOL 8–12
+//  - Water added to maintain 60–70% substrate moisture:
+//    ~0.5× feed weight for manure (already moist),
+//    ~0.8× for dry mash
+//  - Prepupation (DOL 18+): feeding drops sharply,
+//    larvae migrate, stop accepting feed by ~DOL 20
+// ─────────────────────────────────────────────
 
-  for(let day = currentDOL; day <= 28; day++){
-    let feedPerGram = 0;
-    let feedType = "";
-    let feedClass = "";
+const EGGS_PER_GRAM = 550;
+const HATCH_RATE    = 0.85;
 
-    // ✅ IF MANURE IS DISABLED → FULL MASH SYSTEM
-    if(!useManure){
-      const mashCurveFull = [
-        0.7, 1.5, 3, 5, 7, 9, 11, 13, 15, 16,
-        17, 18, 19, 19, 18, 17, 15, 13, 11, 9,
-        8, 7, 6, 5, 4.5, 4, 3.5, 3, 3
-      ];
+// mg feed per larva per day (DOL 0–21)
+// DOL 0–1: neonates, minimal feeding
+// DOL 2–14: exponential then plateau
+// DOL 15–17: appetite declines
+// DOL 18–20: pre-pupation, stop feeding
+const FEED_MG_PER_LARVA = [
+   10,  20,  40,  70, 110,   // 0–4  mash
+  150, 170,                   // 5–6  transition
+  190, 200, 200, 195, 185,   // 7–11 manure peak
+  170, 155, 135,             // 12–14
+  110,  80,  50,             // 15–17 declining
+   20,   8,   3,             // 18–20 pre-pup
+    0,   0                   // 21–22 stop
+];
 
-      feedPerGram = mashCurveFull[day] || 3;
-      totalMash += feedPerGram * eggGrams;
+// Water multiplier of feed weight
+const WATER_MULT_MASH   = 0.8;
+const WATER_MULT_MANURE = 0.4; // manure already ~70% moisture
 
-      feedType = "Chicken Mash Only";
-      feedClass = "mash";
+function getPhase(dol, useManure) {
+  if (!useManure) {
+    if (dol >= 18) return 'prepup';
+    return 'mash';
+  }
+  if (dol <= 4)  return 'mash';
+  if (dol <= 6)  return 'transition';
+  if (dol <= 17) return 'manure';
+  return 'prepup';
+}
+
+function getFeedType(dol, useManure) {
+  const p = getPhase(dol, useManure);
+  if (p === 'mash')       return { label: 'Chicken Mash',          cls: 'ph-mash' };
+  if (p === 'transition') {
+    if (dol === 5)        return { label: '60% Mash · 40% Manure', cls: 'ph-trans' };
+    return                       { label: '30% Mash · 70% Manure', cls: 'ph-trans' };
+  }
+  if (p === 'manure')     return { label: 'Chicken Manure',        cls: 'ph-manure' };
+  return                         { label: 'Pre-pupation — stop',   cls: 'ph-pre' };
+}
+
+function fmt(grams) {
+  if (grams >= 1000) return (grams / 1000).toFixed(2) + ' kg';
+  return grams.toFixed(1) + ' g';
+}
+
+function fmtL(ml) {
+  if (ml >= 1000) return (ml / 1000).toFixed(2) + ' L';
+  return ml.toFixed(0) + ' ml';
+}
+
+function buildPlan(eggGrams, startDOL, useManure, useMolasses) {
+  const larvae = eggGrams * EGGS_PER_GRAM * HATCH_RATE;
+  let rows = [];
+  let totalMash = 0, totalManure = 0, totalMolasses = 0, totalWater = 0;
+
+  for (let dol = startDOL; dol <= 22; dol++) {
+    const idx = Math.min(dol, FEED_MG_PER_LARVA.length - 1);
+    const feedMgPerLarva = FEED_MG_PER_LARVA[idx];
+    const totalFeedG = (feedMgPerLarva * larvae) / 1000; // convert mg→g
+
+    const phase = getPhase(dol, useManure);
+    const ft = getFeedType(dol, useManure);
+
+    // water
+    const waterMult = (phase === 'mash' || phase === 'transition') ? WATER_MULT_MASH : WATER_MULT_MANURE;
+    const waterMl = totalFeedG * waterMult * 1000; // g water ≈ ml
+
+    // split mash vs manure for totals
+    if (phase === 'mash')       totalMash += totalFeedG;
+    if (phase === 'manure')     totalManure += totalFeedG;
+    if (phase === 'transition') {
+      const mashRatio = dol === 5 ? 0.6 : 0.3;
+      totalMash   += totalFeedG * mashRatio;
+      totalManure += totalFeedG * (1 - mashRatio);
+    }
+    totalWater += waterMl;
+
+    // molasses
+    let molassesG = 0;
+    let molStr = '—';
+    if (useMolasses && dol % 5 === 0 && phase !== 'prepup' && totalFeedG > 0) {
+      molassesG = totalFeedG * 0.025;
+      totalMolasses += molassesG;
+      molStr = `<span class="mol-val">${fmt(molassesG)}</span>`;
     }
 
-    // ✅ NORMAL SYSTEM (WITH MANURE)
-    else {
+    // notes
+    let note = '';
+    if (dol === 0)  note = 'Hatch / neonates';
+    if (dol === 5)  note = 'Introduce manure gradually';
+    if (dol === 7)  note = 'Full manure substrate';
+    if (dol === 18) note = '⚠ Larvae begin migrating';
+    if (dol === 20) note = '⚠ Stop feeding';
+    if (dol > 20)   note = 'Harvest prepupae';
 
-      // PHASE 1: MASH
-      if(day <= 4){
-        const mashCurve = [0.7, 1.5, 3, 5, 7];
-        feedPerGram = mashCurve[day];
-        totalMash += feedPerGram * eggGrams;
-        feedType = "Chicken Mash";
-        feedClass = "mash";
-      }
-
-      // PHASE 2: TRANSITION
-      else if(day === 5){
-        feedPerGram = 6;
-        totalMash += (feedPerGram * 0.6) * eggGrams;
-        totalManure += (feedPerGram * 0.4) * eggGrams;
-        feedType = "60% Mash + 40% Manure";
-        feedClass = "transition";
-      }
-      else if(day === 6){
-        feedPerGram = 7;
-        totalMash += (feedPerGram * 0.3) * eggGrams;
-        totalManure += (feedPerGram * 0.7) * eggGrams;
-        feedType = "30% Mash + 70% Manure";
-        feedClass = "transition";
-      }
-
-      // PHASE 3: MANURE
-      else {
-        const manureCurve = [
-          7, 8, 9, 10, 11, 12, 13, 13, 12, 11,
-          10, 9, 8, 7, 6, 5.5, 5, 4.5, 4, 3.5, 3
-        ];
-        let idx = day - 7;
-        feedPerGram = manureCurve[idx] || 3;
-
-        totalManure += feedPerGram * eggGrams;
-        feedType = "Chicken Manure";
-        feedClass = "manure";
-      }
-    }
-
-    // WATER
-    let waterRatio = 0.8;
-    let feedAmount = feedPerGram * eggGrams;
-    let waterAmount = feedAmount * waterRatio;
-
-    let feedDisplay = eggGrams < 1000 
-      ? feedAmount.toFixed(2) + ' g' 
-      : (feedAmount / 1000).toFixed(2) + ' kg';
-
-    let waterDisplay = eggGrams < 1000 
-      ? waterAmount.toFixed(2) + ' ml' 
-      : (waterAmount / 1000).toFixed(2) + ' L';
-
-    tableRows.push(`
+    rows.push(`
       <tr>
-        <td>${day}</td>
-        <td class="feed-type ${feedClass}">${feedType}</td>
-        <td>${feedDisplay}</td>
-        <td class="water">${waterDisplay}</td>
+        <td class="dol-cell">${dol}</td>
+        <td><span class="phase-badge ${ft.cls}">${phase.toUpperCase()}</span></td>
+        <td style="font-size:0.78rem;">${ft.label}</td>
+        <td>${phase === 'prepup' && dol > 20 ? '—' : fmt(totalFeedG)}</td>
+        <td class="water-val">${phase === 'prepup' && dol > 20 ? '—' : fmtL(waterMl)}</td>
+        <td>${useMolasses ? molStr : '—'}</td>
+        <td style="font-size:0.75rem;color:var(--muted);">${note}</td>
       </tr>
     `);
   }
 
-  let totalMashDisplay = eggGrams < 1000 
-    ? totalMash.toFixed(2) + ' g' 
-    : (totalMash / 1000).toFixed(2) + ' kg';
+  return { rows, larvae, totalMash, totalManure, totalMolasses, totalWater };
+}
 
-  let totalManureDisplay = eggGrams < 1000 
-    ? totalManure.toFixed(2) + ' g' 
-    : (totalManure / 1000).toFixed(2) + ' kg';
+// Toggle logic
+document.querySelectorAll('.toggle-btn').forEach(btn => {
+  btn.addEventListener('click', () => btn.classList.toggle('active'));
+});
 
-  return {
-    rows: tableRows.join(''),
-    totalMashDisplay,
-    totalManureDisplay
-  };
-};
+document.getElementById('generate').addEventListener('click', () => {
+  const eggGrams   = parseFloat(document.getElementById('eggGrams').value);
+  const startDOL   = parseInt(document.getElementById('currentDOL').value) || 0;
+  const useManure  = document.querySelector('[data-id="useManure"]').classList.contains('active');
+  const useMolasses= document.querySelector('[data-id="useMolasses"]').classList.contains('active');
 
-$('#generate').click(function(){
-  const eggs = parseFloat($('#eggGrams').val());
-  const dol = parseInt($('#currentDOL').val());
-  const useManure = $('#useManure').is(':checked');
+  if (!eggGrams || eggGrams <= 0) { alert('Please enter a valid egg weight.'); return; }
 
-  if(isNaN(eggs) || eggs <= 0 || isNaN(dol) || dol < 0){
-    alert("Please enter valid egg grams and DOL");
-    return;
-  }
+  const result = buildPlan(eggGrams, startDOL, useManure, useMolasses);
 
-  const result = feedGuide(eggs, dol, useManure);
-  $('#plan tbody').html(result.rows);
+  // Summary boxes
+  document.getElementById('summaryBoxes').innerHTML = `
+    <div class="stat-box">
+      <div class="stat-label">Egg Input</div>
+      <div class="stat-value">${eggGrams} g</div>
+      <div class="stat-sub">raw eggs</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Estimated Larvae</div>
+      <div class="stat-value">${Math.round(result.larvae).toLocaleString()}</div>
+      <div class="stat-sub">at 85% hatch rate</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Total Feed</div>
+      <div class="stat-value">${fmt(result.totalMash + result.totalManure)}</div>
+      <div class="stat-sub">full cycle</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Total Water</div>
+      <div class="stat-value">${fmtL(result.totalWater)}</div>
+      <div class="stat-sub">to maintain moisture</div>
+    </div>
+  `;
 
-  $('#summary').html(`
-    <strong>Total Mash:</strong> ${result.totalMashDisplay}<br>
-    <strong>Total Manure:</strong> ${useManure ? result.totalManureDisplay : "0"}<br><br>
+  document.getElementById('tableBody').innerHTML = result.rows.join('');
 
-    <strong>System:</strong> ${useManure ? "Mash → Manure Integrated" : "100% Mash System"}<br>
-    <strong>Feeding Model:</strong> Industrial high-density<br>
-    <strong>Mode:</strong> ${useManure ? "Cost-optimized (waste-fed)" : "High-growth (premium feed)"}
-  `).show();
+  document.getElementById('totalsContent').innerHTML = `
+    <div class="summary-grid">
+      <div class="stat-box">
+        <div class="stat-label">Chicken Mash</div>
+        <div class="stat-value">${fmt(result.totalMash)}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Chicken Manure</div>
+        <div class="stat-value">${useManure ? fmt(result.totalManure) : '— (disabled)'}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Molasses</div>
+        <div class="stat-value">${useMolasses ? fmt(result.totalMolasses) : '— (disabled)'}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Water Added</div>
+        <div class="stat-value">${fmtL(result.totalWater)}</div>
+      </div>
+    </div>
+  `;
+
+  const larvaeK = (result.larvae / 1000).toFixed(1);
+  document.getElementById('scienceNote').innerHTML = `
+    <strong>Calculation basis:</strong> ${eggGrams}g eggs × 550 eggs/g × 85% hatch = 
+    <strong>${Math.round(result.larvae).toLocaleString()} larvae</strong>. 
+    Feed rates follow observed mg/larva/day bell curve (peak ~200 mg/larva/day at DOL 8–12). 
+    Water additions target 60–70% substrate moisture 
+    (0.8× for mash, 0.4× for manure which is already ~70% moist). 
+    Feeding stops at DOL 18–20 as larvae enter pre-pupation.
+  `;
+
+  document.getElementById('output').style.display = 'block';
+  document.getElementById('output').scrollIntoView({ behavior: 'smooth' });
 });
 </script>
 </body>
