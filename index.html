@@ -322,6 +322,20 @@
     }
 
     .info-note strong { color: var(--accent2); }
+
+    .hull-val { color: #c8a96e; }
+
+    .bulking-note {
+      background: rgba(200,169,110,0.07);
+      border-left: 3px solid #c8a96e;
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 12px;
+      line-height: 1.6;
+    }
+    .bulking-note strong { color: #c8a96e; }
   </style>
 </head>
 <body>
@@ -360,6 +374,9 @@
         <div class="toggle-btn" data-id="useMolasses">
           <div class="toggle-dot"></div> Molasses Spray (every 5 days)
         </div>
+        <div class="toggle-btn active" data-id="useHulls">
+          <div class="toggle-dot"></div> Rice Hull Bulking Agent
+        </div>
       </div>
     </div>
 
@@ -377,6 +394,7 @@
       <div class="legend-item"><div class="legend-dot" style="background:#f5c542;"></div> Transition</div>
       <div class="legend-item"><div class="legend-dot" style="background:#a0714f;"></div> Manure Phase</div>
       <div class="legend-item"><div class="legend-dot" style="background:#e05c5c;"></div> Pre-pupation</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#c8a96e;"></div> Rice Hulls</div>
     </div>
 
     <div class="table-wrap">
@@ -387,6 +405,7 @@
             <th>Phase</th>
             <th>Feed Type</th>
             <th>Feed Amount</th>
+            <th>Rice Hulls</th>
             <th>Water</th>
             <th>Molasses</th>
             <th>Notes</th>
@@ -442,6 +461,13 @@ const FEED_MG_PER_LARVA = [
 const WATER_MULT_MASH   = 0.8;
 const WATER_MULT_MANURE = 0.4; // manure already ~70% moisture
 
+// Rice hull ratio by phase (weight of hulls : weight of feed)
+// Mash phase: feed is fine & wet → 20% hulls to open structure
+// Transition: 25% — mixing two substrates, needs more aeration
+// Manure phase: manure compacts most → 30% hulls critical
+// Pre-pup: no feed, no hulls needed
+const HULL_RATIO = { mash: 0.20, transition: 0.25, manure: 0.30, prepup: 0 };
+
 function getPhase(dol, useManure) {
   if (!useManure) {
     if (dol >= 18) return 'prepup';
@@ -474,10 +500,10 @@ function fmtL(ml) {
   return ml.toFixed(0) + ' ml';
 }
 
-function buildPlan(eggGrams, startDOL, useManure, useMolasses) {
+function buildPlan(eggGrams, startDOL, useManure, useMolasses, useHulls) {
   const larvae = eggGrams * EGGS_PER_GRAM * HATCH_RATE;
   let rows = [];
-  let totalMash = 0, totalManure = 0, totalMolasses = 0, totalWater = 0;
+  let totalMash = 0, totalManure = 0, totalMolasses = 0, totalWater = 0, totalHulls = 0;
 
   for (let dol = startDOL; dol <= 22; dol++) {
     const idx = Math.min(dol, FEED_MG_PER_LARVA.length - 1);
@@ -490,6 +516,10 @@ function buildPlan(eggGrams, startDOL, useManure, useMolasses) {
     // water
     const waterMult = (phase === 'mash' || phase === 'transition') ? WATER_MULT_MASH : WATER_MULT_MANURE;
     const waterMl = totalFeedG * waterMult * 1000; // g water ≈ ml
+
+    // rice hulls
+    const hullG = useHulls ? totalFeedG * HULL_RATIO[phase] : 0;
+    if (useHulls) totalHulls += hullG;
 
     // split mash vs manure for totals
     if (phase === 'mash')       totalMash += totalFeedG;
@@ -525,6 +555,7 @@ function buildPlan(eggGrams, startDOL, useManure, useMolasses) {
         <td><span class="phase-badge ${ft.cls}">${phase.toUpperCase()}</span></td>
         <td style="font-size:0.78rem;">${ft.label}</td>
         <td>${phase === 'prepup' && dol > 20 ? '—' : fmt(totalFeedG)}</td>
+        <td class="hull-val">${useHulls && phase !== 'prepup' ? fmt(hullG) : '—'}</td>
         <td class="water-val">${phase === 'prepup' && dol > 20 ? '—' : fmtL(waterMl)}</td>
         <td>${useMolasses ? molStr : '—'}</td>
         <td style="font-size:0.75rem;color:var(--muted);">${note}</td>
@@ -532,7 +563,7 @@ function buildPlan(eggGrams, startDOL, useManure, useMolasses) {
     `);
   }
 
-  return { rows, larvae, totalMash, totalManure, totalMolasses, totalWater };
+  return { rows, larvae, totalMash, totalManure, totalMolasses, totalWater, totalHulls };
 }
 
 // Toggle logic
@@ -545,10 +576,11 @@ document.getElementById('generate').addEventListener('click', () => {
   const startDOL   = parseInt(document.getElementById('currentDOL').value) || 0;
   const useManure  = document.querySelector('[data-id="useManure"]').classList.contains('active');
   const useMolasses= document.querySelector('[data-id="useMolasses"]').classList.contains('active');
+  const useHulls   = document.querySelector('[data-id="useHulls"]').classList.contains('active');
 
   if (!eggGrams || eggGrams <= 0) { alert('Please enter a valid egg weight.'); return; }
 
-  const result = buildPlan(eggGrams, startDOL, useManure, useMolasses);
+  const result = buildPlan(eggGrams, startDOL, useManure, useMolasses, useHulls);
 
   // Summary boxes
   document.getElementById('summaryBoxes').innerHTML = `
@@ -566,6 +598,11 @@ document.getElementById('generate').addEventListener('click', () => {
       <div class="stat-label">Total Feed</div>
       <div class="stat-value">${fmt(result.totalMash + result.totalManure)}</div>
       <div class="stat-sub">full cycle</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Rice Hulls</div>
+      <div class="stat-value" style="color:#c8a96e;">${useHulls ? fmt(result.totalHulls) : '— off'}</div>
+      <div class="stat-sub">bulking agent total</div>
     </div>
     <div class="stat-box">
       <div class="stat-label">Total Water</div>
@@ -591,13 +628,16 @@ document.getElementById('generate').addEventListener('click', () => {
         <div class="stat-value">${useMolasses ? fmt(result.totalMolasses) : '— (disabled)'}</div>
       </div>
       <div class="stat-box">
+        <div class="stat-label">Rice Hulls</div>
+        <div class="stat-value" style="color:#c8a96e;">${useHulls ? fmt(result.totalHulls) : '— (disabled)'}</div>
+      </div>
+      <div class="stat-box">
         <div class="stat-label">Water Added</div>
         <div class="stat-value">${fmtL(result.totalWater)}</div>
       </div>
     </div>
   `;
 
-  const larvaeK = (result.larvae / 1000).toFixed(1);
   document.getElementById('scienceNote').innerHTML = `
     <strong>Calculation basis:</strong> ${eggGrams}g eggs × 550 eggs/g × 85% hatch = 
     <strong>${Math.round(result.larvae).toLocaleString()} larvae</strong>. 
@@ -606,6 +646,17 @@ document.getElementById('generate').addEventListener('click', () => {
     (0.8× for mash, 0.4× for manure which is already ~70% moist). 
     Feeding stops at DOL 18–20 as larvae enter pre-pupation.
   `;
+
+  if (useHulls) {
+    document.getElementById('scienceNote').innerHTML += `
+      <div class="bulking-note" style="margin-top:12px;">
+        <strong>🌾 Rice Hull Bulking Agent</strong> — Mixed into substrate at each feeding to prevent compaction and maintain aerobic conditions.
+        Ratios: <strong>20%</strong> of feed weight during mash phase · <strong>25%</strong> during transition · <strong>30%</strong> during manure phase (most critical — manure compacts rapidly without it).
+        Mix hulls thoroughly before adding to bin. Do not pre-wet hulls — they provide dry structural volume.
+        Rice hulls are inert and pass through larvae undigested, separating naturally during harvest sieving.
+      </div>
+    `;
+  }
 
   document.getElementById('output').style.display = 'block';
   document.getElementById('output').scrollIntoView({ behavior: 'smooth' });
